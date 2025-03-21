@@ -1,4 +1,13 @@
 from ultralytics import YOLO
+import torch
+if not torch.backends.mps.is_available():
+    if not torch.backends.mps.is_built():
+        print("MPS not available because the current PyTorch install was not built with MPS enabled.")
+    else:
+        print(
+            "MPS not available because the current MacOS version is not 12.3+ "
+            "and/or you do not have an MPS-enabled device on this machine."
+        )
 
 # 加载模型
 model = YOLO("yolo11n.pt")
@@ -8,7 +17,7 @@ train_results = model.train(
     data="/Users/liuyucheng/Projects/yolov11/ultralytics/cfg/datasets/tinyperson.yaml",  # 数据集 YAML 路径
     epochs=100,  # 训练轮次
     imgsz=640,  # 训练图像尺寸
-    device=0,  # 运行设备，例如 device=0 或 device=0,1,2,3 或 device=cpu
+    device='mps',  # 运行设备，例如 device=0 或 device=0,1,2,3 或 device=cpu
 )
 
 # 评估模型在验证集上的性能
