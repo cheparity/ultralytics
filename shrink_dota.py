@@ -2,22 +2,37 @@ import os
 import shutil
 from tqdm import tqdm
 
-base_dir = "/Volumes/ZX7/Datasets/SODA-D-Yolo-format"
-labels_dir = "/Volumes/ZX7/Datasets/SODA-D-Yolo-format/labels"
-images_dir = "/Volumes/ZX7/Datasets/SODA-D-Yolo-format/images"
-coco_images_dir = "/Volumes/ZX7/Datasets/SODA-D-COCO-format/Images"
+# base_dir = "/Volumes/ZX7/Datasets/SODA-D-Yolo-format"
+# labels_dir = "/Volumes/ZX7/Datasets/SODA-D-Yolo-format/labels"
+# images_dir = "/Volumes/ZX7/Datasets/SODA-D-Yolo-format/images"
+# coco_images_dir = "/Volumes/ZX7/Datasets/SODA-D-COCO-format/Images"
+
+base_dir = "E:\\Datasets\\SODA-D-YOLO-format"
+labels_dir = "E:\\Datasets\\SODA-D-YOLO-format\\labels"
+images_dir = "E:\\Datasets\\SODA-D-YOLO-format\\images"
+coco_images_dir = "E:\\Datasets\\SODA-D-COCO-format\\Images"
 
 # 定义子目录
 splits = ["train", "test", "val"]
 
 # 选择比例（例如 20%）
-select_ratio = 0.2
+select_ratio = 0.05
+
+# 删除三个split下面的.隐藏文件
+print("Deleting hidding files:")
+for split in tqdm(splits):
+    path = os.path.join(labels_dir, split)
+    for dotfile in os.listdir(path):
+        if dotfile.startswith("."):
+            os.remove(os.path.join(path, dotfile))
 
 # 确保 images/ 下的子目录存在
 for split in splits:
     split_images_dir = os.path.join(images_dir, split)
     os.makedirs(split_images_dir, exist_ok=True)
 
+
+jumped_file = []
 # 遍历每个 split（train/test/val）
 for split in splits:
     # 获取 labels 目录下的 .txt 文件
@@ -42,10 +57,10 @@ for split in splits:
     unselected_txt_files = txt_files[num_selected:]
 
     # 删除未选中的 .txt 文件
-    for txt_file in unselected_txt_files:
+    print("Remove unselected label")
+    for txt_file in tqdm(unselected_txt_files):
         txt_path = os.path.join(split_labels_dir, txt_file)
         os.remove(txt_path)
-        print(f"Removed unselected label: {txt_path}")
 
     # 搬运对应的 .jpg 文件
     for txt_file in tqdm(selected_txt_files):
@@ -59,11 +74,12 @@ for split in splits:
             print(f"Image {src_image_path} not found, skipping...")
             # 如果图像不存在，删除对应的 .txt 文件
             os.remove(os.path.join(split_labels_dir, txt_file))
-            print(f"Removed label without corresponding image: {txt_file}")
+            jumped_file.append(src_image_path)
+            # print(f"Removed label without corresponding image: {txt_file}")
             continue
 
         # 复制图像文件
         shutil.copy(src_image_path, dst_image_path)
-        print(f"Copied {src_image_path} to {dst_image_path}")
+        # print(f"Copied {src_image_path} to {dst_image_path}")
 
 print("Dataset selection and image copying completed!")

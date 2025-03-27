@@ -5,9 +5,8 @@ Usage:
 """
 
 from ultralytics.data.converter import convert_coco
-import sys
 
-labels_dir = str(sys.argv[1])
-save_dir = str(sys.argv[2]) if len(sys.argv) == 3 else "coco_converted/"
+labels_dir = "E:\\Datasets\\SODA-D-COCO-format\\Annotations"
+save_dir = 'E:\\Datasets\\SODA-D-YOLO-format'
 
 convert_coco(labels_dir=labels_dir, save_dir=save_dir, cls91to80=False)
